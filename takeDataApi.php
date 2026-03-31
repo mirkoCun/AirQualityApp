@@ -40,10 +40,10 @@ foreach($cities as $city) {
     $name = $city['Name'];
 
     // AIR
-    $urlAir = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=$lat&longitude=$lon&hourly=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,nitrogen_monoxide,ammonia,european_aqi&past_days=31&forecast_days=1&timezone=auto";
+    $urlAir = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=$lat&longitude=$lon&hourly=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,nitrogen_monoxide,ammonia,european_aqi&past_days=31&timezone=Europe%2FRome";
     
     // WEATHER
-    $urlWeather = "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,wind_speed_10m,apparent_temperature,weather_code&past_days=31&forecast_days=1&timezone=auto";
+    $urlWeather = "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,wind_speed_10m,apparent_temperature,weather_code&past_days=31&timezone=Europe%2FRome";
 
     $dataAir = json_decode(file_get_contents($urlAir), true);
     $dataWeather = json_decode(file_get_contents($urlWeather), true);

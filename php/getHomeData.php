@@ -3,17 +3,19 @@
 //da finireeee
 
 
-require 'database.php';
+require '../database.php';
 
-$citta = isset($_GET['city']) ? $_GET['city'] : 'Trento';
+// 1. Diciamo al browser che questo è un file di dati JSON
+header('Content-Type: application/json');
+
+$city = isset($_GET['city']) ? $_GET['city'] : 'Trento';
 
 // 3. Prepariamo la query per prendere l'ULTIMO dato inserito per quella città
-// (Sostituisci 'dati_meteo' e i nomi delle colonne con quelli reali del tuo DB)
 
 $query = 
-"SELECT temperature, humidity, wind_speed, feels_like, aqi, pm2_5, pm10, no2, o3 
+"SELECT temperature, humidity, wind_speed, feels_like, aqi, pm2_5, pm10, no2, o3, weather_code
 FROM registrationAir air, registrationWeather weather, city c 
-WHERE air.City_Name = c.name AND weather.City_Name = c.name AND c.Name = :city 
+WHERE air.City_Name = c.name AND weather.City_Name = c.name AND air.date_time = weather.date_time AND c.Name = :city 
 ORDER BY air.date_time DESC 
 LIMIT 1;";
 
