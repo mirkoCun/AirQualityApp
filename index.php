@@ -153,6 +153,6 @@
     </main>
 
     <script src="javascript/index.js"></script>
-    <script src="javascript/menuCittà.js"></script>
+    <script src="javascript/globalSelector.js"></script>
 </body>
 </html>

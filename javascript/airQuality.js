@@ -1,82 +1,144 @@
-// === aria.js ===
+// === airQuality.js ===
 
+// Inizializza le icone
 lucide.createIcons();
 
-// Dati finti per i dettagli della singola città
-const mockAriaData = {
-    "Trento": { aqi: 45, status: "Buona", pm25: 9.2, pm10: 18.5, no2: 28.3, o3: 52.8, trend: "In miglioramento", rec: "Qualità dell'aria eccellente. Ideale per attività all'aperto." },
-    "Rovereto": { aqi: 52, status: "Discreta", pm25: 11.5, pm10: 22.3, no2: 32.7, o3: 58.2, trend: "Stabile", rec: "Aria accettabile. Persone sensibili dovrebbero limitare gli sforzi prolungati all'aperto." }
-};
 
-// Dati finti per la classifica generale
-const mockRanking = [
-    { city: "Cavalese", aqi: 25 },
-    { city: "Cles", aqi: 28 },
-    { city: "Riva del Garda", aqi: 33 },
-    { city: "Arco", aqi: 35 },
-    { city: "Bolzano", aqi: 38 },
-    { city: "Pergine Valsugana", aqi: 42 },
-    { city: "Trento", aqi: 45 },
-    { city: "Rovereto", aqi: 52 }
-];
+function updateAir(city) {
+    if (!city) return;
 
-function updateAria(city) {
-    const data = mockAriaData[city] || mockAriaData["Trento"];
+    // Chiamata al file PHP
+    fetch(`../php/getAirQualityData.php?city=${city}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network error");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                console.error("Database error:", data.error);
+                document.getElementById('title-city').innerText = "No data";
+                return;
+            }
 
-    // Aggiorna titolo card
-    document.getElementById('title-city').innerText = city;
+            // 1. Aggiorna i dati numerici dell'aria
+            document.getElementById('title-city').innerText = city;
+            document.getElementById('aqi-val').innerText = data.citiesData.aqi;
+            document.getElementById('pm25-val').innerText = data.citiesData.pm2_5;
+            document.getElementById('pm10-val').innerText = data.citiesData.pm10;
+            document.getElementById('no2-val').innerText = data.citiesData.no2;
+            document.getElementById('o3-val').innerText = data.citiesData.o3;
+            document.getElementById('co-val').innerText = data.citiesData.co;
+            document.getElementById('nh3-val').innerText = data.citiesData.nh3;
+            
+            // 2. Logica del Badge AQI (colore)
+            const badge = document.getElementById('aqi-badge');
+            const currentAqi = parseInt(data.citiesData.aqi);
 
-    // Aggiorna valori card principale
-    document.getElementById('aqi-val').innerText = data.aqi;
-    document.getElementById('pm25-val').innerText = data.pm25;
-    document.getElementById('pm10-val').innerText = data.pm10;
-    document.getElementById('no2-val').innerText = data.no2;
-    document.getElementById('o3-val').innerText = data.o3;
+            if (currentAqi <= 50) {
+                badge.className = "badge badge-good";
+                badge.innerText = "Buona";
+            } else if (currentAqi <= 100) {
+                badge.className = "badge badge-fair";
+                badge.innerText = "Discreta";
+            } else {
+                badge.className = "badge badge-poor"; 
+                badge.innerText = "Scarsa";
+            }
 
-    // Gestione Badge AQI
-    const badge = document.getElementById('aqi-badge');
-    badge.innerText = data.status;
-    badge.className = data.aqi <= 50 ? "badge badge-good" : "badge badge-fair";
+            // 3. Raccomandazioni testuali
+            let recomendation;
+            if (currentAqi <= 50) {
+                recomendation = "Air quality is satisfactory. A perfect day for outdoor activities and opening windows.";
+            } else if (currentAqi <= 100){
+                recomendation = "Air quality is acceptable. Sensitive individuals should consider reducing prolonged outdoor exertion.";
+            } else {
+                recomendation = "Increased likelihood of adverse effects. Everyone should limit outdoor time and keep windows closed.";
+            } 
 
-    // Aggiorna Tendenza e Raccomandazioni
-    document.getElementById('trend-text').innerText = data.trend;
-    document.getElementById('rec-text').innerText = data.rec;
+            // 4. Logica Trend (confronto con ieri)
+            let trend = "stabile";
+            // Cambiato .aqi in .average_aqi
+            if (data.yesterdayData && data.yesterdayData.average_aqi) {
+                const yesterdayAqi = parseInt(data.yesterdayData.average_aqi); // <-- Modificato qui
+                if (currentAqi <= yesterdayAqi - 5) {
+                    trend = "in miglioramento";
+                } else if (currentAqi >= yesterdayAqi + 5) {
+                    trend = "in peggioramento";
+                }
+            }
 
-    lucide.createIcons();
+            document.getElementById('trend-text').innerText = trend;
+            document.getElementById('rec-text').innerText = recomendation;
+
+            // 5. CLASSIFICA REALE: Se il PHP invia l'array 'ranking', lo passiamo alla funzione
+            if (data.ranking && Array.isArray(data.ranking)) {
+                renderRanking(data.ranking);
+            } else {
+                console.warn("Classifica non trovata nel JSON del database.");
+                // Opzionale: svuota o mostra un messaggio di errore nella UI della classifica
+                document.getElementById('ranking-list').innerHTML = '<p style="color:#64748B; padding: 10px;">Dati classifica non disponibili.</p>';
+            }
+
+            // Ricarica le icone per i nuovi elementi appena generati
+            lucide.createIcons(); 
+        })
+        .catch(error => {
+            console.error("Errore Fetch:", error);
+            document.getElementById('title-city').innerText = "Errore di connessione";
+        }); 
 }
 
-function renderRanking() {
+// Funzione che accetta i dati dal DB e crea l'HTML della classifica
+function renderRanking(rankingData) {
     const listContainer = document.getElementById('ranking-list');
-    listContainer.innerHTML = '';
+    if (!listContainer) return;
+    
+    listContainer.innerHTML = ''; // Svuota la lista vecchia
 
-    mockRanking.forEach((item, index) => {
+    rankingData.forEach((item, index) => {
         const rankNum = index + 1;
+        
         // Assegna colori speciali ai primi 3
         let rankClass = "rank-number";
         if (rankNum === 1) rankClass += " rank-1";
         if (rankNum === 2) rankClass += " rank-2";
         if (rankNum === 3) rankClass += " rank-3";
 
-        const badgeClass = item.aqi <= 50 ? "rank-badge good" : "rank-badge fair";
+        // Adatta il nome della colonna in base a come l'hai chiamata nel DB (city o City_name)
+        const cityName = item.city || item.City_name || item.city_name || "Sconosciuta";
+        const cityAqi = parseInt(item.aqi) || 0;
+
+        // Badge della classifica
+        let badgeClass = "rank-badge good";
+        if (cityAqi > 50 && cityAqi <= 100) badgeClass = "rank-badge fair";
+        if (cityAqi > 100) badgeClass = "rank-badge poor";
 
         const rowHTML = `
             <div class="ranking-item">
                 <div class="ranking-left">
                     <div class="${rankClass}">${rankNum}</div>
-                    <span class="rank-city">${item.city}</span>
+                    <span class="rank-city">${cityName}</span>
                 </div>
-                <div class="${badgeClass}">AQI ${item.aqi}</div>
+                <div class="${badgeClass}">AQI ${cityAqi}</div>
             </div>
         `;
         listContainer.innerHTML += rowHTML;
     });
 }
 
-// Event Listeners
-document.getElementById('city-select').addEventListener('change', function(e) {
-    updateAria(e.target.value);
-});
+// === Event Listeners e Inizializzazione ===
+const citySelect = document.getElementById('city-select');
 
-// Inizializzazione
-updateAria("Trento");
-renderRanking();
+if (citySelect) {
+    // Ascolta i cambiamenti nel menu a tendina
+    citySelect.addEventListener('change', function(e) {
+        updateAir(e.target.value);
+    });
+
+    // Avvia la pagina prendendo il valore iniziale
+    if (citySelect.value) {
+        updateAir(citySelect.value);
+    }
+}

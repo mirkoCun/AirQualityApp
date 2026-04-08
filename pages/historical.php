@@ -113,5 +113,6 @@
     </main>
 
     <script src="../javascript/historical.js"></script>
+    <script src="../javascript/globalSelector.js"></script>
 </body>
 </html>

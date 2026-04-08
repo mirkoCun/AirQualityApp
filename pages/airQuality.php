@@ -69,11 +69,11 @@
                 <div class="pollutants-grid">
                     <div class="pollutant-box">
                         <p class="pollutant-name">PM2.5</p>
-                        <p><span class="pollutant-value" id="pm25-val">9.2</span> <span class="pollutant-unit">µg/m³</span></p>
+                        <p><span class="pollutant-value" id="pm25-val">10.2</span> <span class="pollutant-unit">µg/m³</span></p>
                     </div>
                     <div class="pollutant-box">
                         <p class="pollutant-name">PM10</p>
-                        <p><span class="pollutant-value" id="pm10-val">18.5</span> <span class="pollutant-unit">µg/m³</span></p>
+                        <p><span class="pollutant-value" id="pm10-val">15</span> <span class="pollutant-unit">µg/m³</span></p>
                     </div>
                     <div class="pollutant-box">
                         <p class="pollutant-name">NO₂</p>
@@ -82,6 +82,14 @@
                     <div class="pollutant-box">
                         <p class="pollutant-name">O₃</p>
                         <p><span class="pollutant-value" id="o3-val">52.8</span> <span class="pollutant-unit">µg/m³</span></p>
+                    </div>
+                    <div class="pollutant-box">
+                        <p class="pollutant-name">CO</p>
+                        <p><span class="pollutant-value" id="co-val">6.7</span> <span class="pollutant-unit">µg/m³</span></p>
+                    </div>
+                    <div class="pollutant-box">
+                        <p class="pollutant-name">NH₃</p>
+                        <p><span class="pollutant-value" id="nh3-val">6.67</span> <span class="pollutant-unit">µg/m³</span></p>
                     </div>
                 </div>
             </div>
@@ -116,5 +124,6 @@
     </main>
 
     <script src="../javascript/airQuality.js"></script>
+    <script src="../javascript/globalSelector.js"></script>
 </body>
 </html>

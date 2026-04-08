@@ -1,8 +1,5 @@
 <?php 
 
-//da finireeee
-
-
 require '../database.php';
 
 // 1. Diciamo al browser che questo è un file di dati JSON

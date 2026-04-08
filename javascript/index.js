@@ -1,5 +1,3 @@
-// === index.js ===
-
 // Inizializza le icone della libreria Lucide
 lucide.createIcons();
 
@@ -32,8 +30,11 @@ function updateHome(city) {
     // 2. Chiamata al file PHP
     fetch(`php/getHomeData.php?city=${city}`)
         .then(response => {
-            if (!response.ok) throw new Error("Errore di rete");
-            return response.json();
+            if (!response.ok) {
+                throw new Error("Errore di rete");
+            } else {
+                return response.json();
+            }
         })
         .then(data => {
             if (data.error) {
