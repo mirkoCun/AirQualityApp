@@ -19,21 +19,23 @@ const weatherMapping = {
     45: { desc: "Nebbia", icon: "cloud-fog" },
     61: { desc: "Pioggia", icon: "cloud-rain" },
     71: { desc: "Neve", icon: "cloud-snow" },
+    80: { desc: "Piovaschi leggeri", icon: "cloud-drizzle" }, 
+    81: { desc: "Rovesci di pioggia", icon: "cloud-rain" }, 
+    82: { desc: "Rovesci violenti", icon: "cloud-rain-wind" }, 
     95: { desc: "Temporale", icon: "cloud-lightning" }
 };
 
-// --- FUNZIONE PRINCIPALE (Ora INTEGRATA CON PHP) ---
+// Funzione principale che chiama l'API PHP
 function updateHome(city) {
-    // 1. Indichiamo all'utente che stiamo caricando
     document.getElementById('city-name').innerText = "Caricamento...";
 
-    // 2. Chiamata al file PHP
+    // Chiamata al file PHP che abbiamo creato sopra
     fetch(`php/getHomeData.php?city=${city}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Errore di rete");
             } else {
-                return response.json();
+                return response.json(); // Se il file PHP contiene HTML, questo fallirà
             }
         })
         .then(data => {
@@ -43,21 +45,21 @@ function updateHome(city) {
                 return;
             }
 
-            // --- AGGIORNA METEO CON DATI DAL DB ---
+            // Aggiorna Meteo
             document.getElementById('city-name').innerText = city;
             document.getElementById('temp-val').innerText = Math.round(data.temperature);
             document.getElementById('hum-val').innerText = data.humidity + '%';
             document.getElementById('wind-val').innerText = data.wind_speed + ' km/h';
             document.getElementById('feels-val').innerText = Math.round(data.feels_like) + '°C';
             
-            // Gestione icone e descrizione
+            // Gestione icone
             const weatherInfo = weatherMapping[data.weather_code] || { desc: "Sconosciuto", icon: "help-circle" };
             document.getElementById('weather-desc').innerText = weatherInfo.desc;
             
             const iconContainer = document.getElementById('weather-icon-container');
             iconContainer.innerHTML = `<i data-lucide="${weatherInfo.icon}" style="width: 48px; height: 48px;"></i>`;
             
-            // --- AGGIORNA QUALITÀ ARIA CON DATI DAL DB ---
+            // Aggiorna Qualità Aria
             document.getElementById('aqi-val').innerText = data.aqi;
             document.getElementById('pm25-val').innerText = data.pm2_5;
             document.getElementById('pm10-val').innerText = data.pm10;
@@ -77,10 +79,7 @@ function updateHome(city) {
                 badge.innerText = "Scarsa";
             }
 
-            // Re-inizializza le icone Lucide per mostrare quella nuova
             lucide.createIcons();
-            
-            // Aggiorna anche la stringa dell'orario
             updateDateString();
         })
         .catch(error => {
@@ -94,5 +93,6 @@ document.getElementById('city-select').addEventListener('change', function(e) {
     updateHome(e.target.value);
 });
 
-// Avvia la pagina prendendo il valore iniziale della select (che ora non è più fissa su Trento)
+// Avvia la pagina al caricamento
 const initialCity = document.getElementById('city-select').value;
+updateHome(initialCity);

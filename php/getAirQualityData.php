@@ -6,7 +6,17 @@ require '../database.php';
 $city = isset($_GET['city']) ? $_GET['city'] : 'Trento';
 
 // Query 1: Tabella scritta con la 'A' maiuscola e colonne esplicite
-$query1 = "SELECT aqi, pm2_5, pm10, no2, o3, co, nh3 FROM registrationAir WHERE City_Name = :city ORDER BY date_time DESC LIMIT 1";
+$query1 = "SELECT date_time, aqi, pm2_5, pm10, no2, o3, co, nh3 
+FROM registrationAir 
+WHERE City_Name = :city 
+  AND aqi IS NOT NULL 
+  AND pm2_5 IS NOT NULL 
+  AND pm10 IS NOT NULL 
+  AND no2 IS NOT NULL 
+  AND o3 IS NOT NULL 
+  AND co IS NOT NULL 
+  AND nh3 IS NOT NULL
+ORDER BY date_time DESC;";
 $stmt1 = $pdo->prepare($query1);
 $stmt1->execute(['city' => $city]);
 $citiesData = $stmt1->fetch(PDO::FETCH_ASSOC);

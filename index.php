@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
-
     <header class="site-header">
         <div class="header-logo">
             <div class="icon-box">
@@ -33,7 +32,6 @@
     </header>
 
     <main class="container">
-        
         <div class="section-title-wrapper">
             <div class="section-title">
                 <h2>Current Conditions</h2>
@@ -60,7 +58,6 @@
         </div>
 
         <div class="main-grid">
-            
             <div class="card weather-card">
                 <div class="weather-icon-large" id="weather-icon-container">
                     <i data-lucide="cloud" style="width: 48px; height: 48px;"></i>

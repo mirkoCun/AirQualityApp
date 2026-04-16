@@ -61,7 +61,21 @@ foreach($cities as $city) {
         foreach ($timeArr as $i => $time_val) {
             $dt = str_replace('T', ' ', $time_val); 
 
-            //AIR
+            // --- NUOVO CONTROLLO: Se i dati principali sono null, saltiamo questa riga! ---
+            if ($dataAir['hourly']['european_aqi'][$i] === null || 
+                $dataAir['hourly']['pm10'][$i] === null || 
+                $dataAir['hourly']['pm2_5'][$i] === null ||
+                $dataAir['hourly']['nitrogen_monoxide'][$i] === null ||
+                $dataAir['hourly']['carbon_monoxide'][$i] === null ||
+                $dataAir['hourly']['ammonia'][$i] === null ||
+                $dataAir['hourly']['ozone'][$i] === null ||
+                
+                $dataWeather['hourly']['temperature_2m'][$i] === null) {
+                continue; // Salta alla prossima ora senza eseguire le query
+            }
+            // -----------------------------------------------------------------------------
+
+            // AIR (Viene eseguito solo se l'AQI non è null)
             $stmtAir->execute([
                 ':aqi'   => $dataAir['hourly']['european_aqi'][$i],
                 ':pm10'  => $dataAir['hourly']['pm10'][$i],
@@ -75,7 +89,7 @@ foreach($cities as $city) {
                 ':city'  => $name
             ]);
 
-            //WEATHER
+            // WEATHER (Viene eseguito solo se la Temperatura non è null)
             $stmtWeather->execute([
                 ':dt'     => $dt,
                 ':city'   => $name,
@@ -91,7 +105,7 @@ foreach($cities as $city) {
      
         
     } catch (PDOException $e) {
-        //IF ERROR
+        // IF ERROR
         echo "DB ERROR on $name: " . $e->getMessage() . "\n<br>";
     }
 }

@@ -36,32 +36,48 @@ function updateAir(city) {
             const badge = document.getElementById('aqi-badge');
             const currentAqi = parseInt(data.citiesData.aqi);
 
-            if (currentAqi <= 50) {
+            // 2. Logica del Badge AQI (6 Livelli Europei)
+            if (currentAqi <= 30) {
                 badge.className = "badge badge-good";
                 badge.innerText = "Buona";
-            } else if (currentAqi <= 100) {
+            } else if (currentAqi <= 50) {
                 badge.className = "badge badge-fair";
                 badge.innerText = "Discreta";
+            } else if (currentAqi <= 70) {
+                badge.className = "badge badge-moderate";
+                badge.innerText = "Moderata";
+            } else if (currentAqi <= 80) {
+                badge.className = "badge badge-poor";
+                badge.innerText = "Scadente";
+            } else if (currentAqi <= 100) {
+                badge.className = "badge badge-very-poor";
+                badge.innerText = "Pessima";
             } else {
-                badge.className = "badge badge-poor"; 
-                badge.innerText = "Scarsa";
+                badge.className = "badge badge-hazardous"; 
+                badge.innerText = "Emergenza";
             }
 
             // 3. Raccomandazioni testuali
             let recomendation;
-            if (currentAqi <= 50) {
-                recomendation = "Air quality is satisfactory. A perfect day for outdoor activities and opening windows.";
-            } else if (currentAqi <= 100){
-                recomendation = "Air quality is acceptable. Sensitive individuals should consider reducing prolonged outdoor exertion.";
+            if (currentAqi <= 30) {
+                recomendation = "Air quality is excellent. A perfect day for all outdoor activities and ventilating your home.";
+            } else if (currentAqi <= 50) {
+                recomendation = "Air quality is acceptable. Good for outdoor activities, but unusually sensitive people should monitor their symptoms.";
+            } else if (currentAqi <= 70) {
+                recomendation = "Air quality is moderate. Sensitive groups might experience minor health effects. Consider reducing intense outdoor exertion.";
+            } else if (currentAqi <= 80) {
+                recomendation = "Air quality is poor. Increased likelihood of health effects for sensitive groups. Reduce prolonged outdoor activities.";
+            } else if (currentAqi <= 100) {
+                recomendation = "Air quality is very poor. Health effects can be felt by everyone. Sensitive groups should strictly avoid outdoor exertion.";
             } else {
-                recomendation = "Increased likelihood of adverse effects. Everyone should limit outdoor time and keep windows closed.";
-            } 
+                recomendation = "Hazardous conditions. Everyone should limit outdoor time, avoid physical exertion outside, and keep windows closed.";
+            }
 
             // 4. Logica Trend (confronto con ieri)
             let trend = "stabile";
             // Cambiato .aqi in .average_aqi
             if (data.yesterdayData && data.yesterdayData.average_aqi) {
-                const yesterdayAqi = parseInt(data.yesterdayData.average_aqi); // <-- Modificato qui
+                const yesterdayAqi = parseInt(data.yesterdayData.average_aqi); 
                 if (currentAqi <= yesterdayAqi - 5) {
                     trend = "in miglioramento";
                 } else if (currentAqi >= yesterdayAqi + 5) {
